@@ -7,11 +7,11 @@ This project implements a complete **ETL (Extract, Transform, Load)** pipeline u
 ## 📁 Project Structure
 
 📁 weather-etl-pipeline/
-├── weather_etl.py         # Main ETL logic
-├── scheduler.py           # Scheduler to run ETL job periodically
-├── db_config.json         # MongoDB URI and API key configuration
-├── requirements.txt       # Python dependencies
-└── README.md              # Project overview
+├── weather_etl.py          # Main ETL logic
+├── scheduler.py            # Scheduler to run ETL job periodically
+├── db_config.json          # MongoDB URI and API key configuration
+├── requirements.txt        # Python dependencies
+└── README.md               # Project overview
 
 
 ## 🚀 ETL Notebook Overview
@@ -61,7 +61,8 @@ python weather_etl.py
 6. Run the Scheduler
 python scheduler.py
 
-**📚Technologies used:**
+
+##📚Technologies used:
 
 Python (pandas, json, requests, etc.)
 
@@ -73,15 +74,15 @@ GitHub Actions (CI/CD)
 
 CSV, JSON, Google Sheets
 
-**📈Output**
+##📈Output
 Final cleaned and merged dataset is printed to console
 Data is stored in MongoDB 
 Ready for analytics and visualizations
 
 
-**📄 License**
+##📄 License
 This project is for academic use only. Please contact the author for other use cases.
 
-**👤 Author**
+##👤 Author
 Maria Irfan
 Roll Number: DS-032-2023
