@@ -61,9 +61,23 @@ python weather_etl.py
 6. Run the Scheduler
 python scheduler.py
 
+🔄 Automation
+Use scheduler.py to automate the ETL pipeline daily using:
 
-##📚Technologies used:
+schedule Python module (in-script scheduler)
 
+Or set up as a cron job for system-level automation
+
+🧪 CI/CD Integration
+The .github/workflows/ci_cd.yml enables GitHub Actions for:
+
+Code linting
+
+Notebook execution tests
+
+Future deployment hooks
+
+🧰 Technologies Used
 Python (pandas, json, requests, etc.)
 
 Jupyter Notebook
@@ -74,15 +88,9 @@ GitHub Actions (CI/CD)
 
 CSV, JSON, Google Sheets
 
-##📈Output
-Final cleaned and merged dataset is printed to console
-Data is stored in MongoDB 
-Ready for analytics and visualizations
-
-
-##📄 License
+📄 License
 This project is for academic use only. Please contact the author for other use cases.
 
-##👤 Author
+👤 Author
 Maria Irfan
 Roll Number: DS-032-2023
