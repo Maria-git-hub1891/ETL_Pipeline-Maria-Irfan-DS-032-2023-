@@ -1,6 +1,6 @@
 # ETL_Pipeline_MariaIrfan_DS-032
 
-This project implements a complete **ETL (Extract, Transform, Load)** pipeline using Python. It extracts data from multiple sources (CSV, JSON/API, Google Sheets), processes and cleans the data, and stores the final output in a database-ready format. The notebook `ETL_ASSIGNMENT (2).ipynb` contains the core logic behind the ETL operations.
+This project implements a complete **ETL (Extract, Transform, Load)** pipeline using Python. It extracts data from multiple sources (CSV, JSON/API, Google Sheets), processes and cleans the data, and stores the final output in a database-ready format. The notebook `ETL_ASSIGNMENT.ipynb` contains the core logic behind the ETL operations.
 
 ---
 
