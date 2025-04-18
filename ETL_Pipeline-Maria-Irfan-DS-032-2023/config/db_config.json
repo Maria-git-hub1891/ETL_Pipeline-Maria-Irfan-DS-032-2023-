@@ -1,1 +1,9 @@
+import pandas as pd
+import json
+import requests
+from datetime import datetime
 
+# 2. JSON File
+json_weather = pd.read_json(&quot;json_weather.json&quot;, lines=True)
+# Display the data
+print(json_weather)
