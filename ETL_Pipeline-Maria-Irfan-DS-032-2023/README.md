@@ -24,9 +24,9 @@ This project implements a complete **ETL (Extract, Transform, Load)** pipeline u
 
 The notebook `ETL_ASSIGNMENT (2).ipynb` contains:
 - ✅ Reading data from different sources:
-  - CSV (`sample_data.csv`)
+  - CSV (`weather_data.csv`)
   - JSON (simulated weather API)
-  - Google Sheets (exported as CSV)
+  - Spread Sheets
 - ✅ Cleaning and transforming the data
 - ✅ Merging and exporting a final dataset
 - ✅ Optional loading into a database (via `load_to_db.py`)
