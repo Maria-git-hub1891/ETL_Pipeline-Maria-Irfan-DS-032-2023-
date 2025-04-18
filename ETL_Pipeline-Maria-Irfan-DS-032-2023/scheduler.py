@@ -1,14 +1,24 @@
-# scheduler.py
-
 import schedule
 import time
-from PythonScriptBDA import run_weather_etl
+import os
+import subprocess
 
-# Schedule the job to run every 6 hours
-schedule.every(6).hours.do(run_weather_etl)
+def run_notebook():
+    print("Running ETL notebook...")
+    result = subprocess.run([
+        "jupyter", "nbconvert", "--to", "notebook", 
+        "--execute", "--inplace", "ETL_ASSIGNMENT.ipynb"
+    ])
+    if result.returncode == 0:
+        print("Notebook ran successfully!")
+    else:
+        print("Error running notebook.")
 
-print("📆 Scheduler started. Waiting to run tasks...")
+# Schedule the notebook to run every day at 8 AM
+schedule.every().day.at("08:00").do(run_notebook)
+
+print("Scheduler started...")
 
 while True:
     schedule.run_pending()
-    time.sleep(60)  # wait a minute between checks
+    time.sleep(60)
