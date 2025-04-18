@@ -65,7 +65,7 @@ python weather_etl.py
 ```bash
 python scheduler.py
 
-🔄 Automation
+#🔄 Automation
 Use scheduler.py to automate the ETL pipeline daily using:
 
 schedule Python module (in-script scheduler)
