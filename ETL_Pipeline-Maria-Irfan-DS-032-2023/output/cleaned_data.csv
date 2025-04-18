@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime
 
 
-# OpenWeather Data
+# Data
 owm_data = [
     {"city": "Karachi", "weather": "Haze", "temperature": 27.9, "humidity": 69, "source": "OpenWeather"},
     {"city": "Lahore", "weather": "Scattered clouds", "temperature": 23.99, "humidity": 60, "source": "OpenWeather"},
