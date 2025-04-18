@@ -3,8 +3,8 @@ import requests
 import pandas as pd
 
 # Replace with your API keys
-openweather_api_key = "d8f012ca36a01152b4ff5d75ab332cf5"
-accuweather_api_key = "AvQbBEyfuylYGtXNViEXTLoIvAA2L6OS"
+openweather_api_key = "--------------------------------"
+accuweather_api_key = "--------------------------------"
 # List of cities
 cities = ["Karachi", "Lahore", "Islamabad"]
 
