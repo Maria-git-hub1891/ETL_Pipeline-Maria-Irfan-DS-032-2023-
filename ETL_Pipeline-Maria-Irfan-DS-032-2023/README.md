@@ -7,11 +7,16 @@ This project implements a complete **ETL (Extract, Transform, Load)** pipeline u
 ## 📁 Project Structure
 
 📁 weather-etl-pipeline/
-├── weather_etl.py           # Main ETL logic
-├── scheduler.py            # Scheduler to run ETL job periodically
-├── db_config.json          # MongoDB URI and API key configuration
-├── requirements.txt        # Python dependencies
-└── README.md               # Project overview
+
+├── weather_etl.py      
+
+├── scheduler.py    
+
+├── db_config.json         
+
+├── requirements.txt       
+
+└── README.md              
 
 
 ## 🚀 ETL Notebook Overview
