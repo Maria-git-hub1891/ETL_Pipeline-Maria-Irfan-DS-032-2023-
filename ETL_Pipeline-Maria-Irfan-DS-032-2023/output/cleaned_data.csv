@@ -1,54 +1,78 @@
-import pandas as pd
-from datetime import datetime
 
+# Handle Missing Data
+for df in [weather_df, historical_df, noaa_df, google_drive_df, mongo_df]:
+    df.fillna(method="ffill", inplace=True)
+    df.fillna(method="bfill", inplace=True)
 
-# AccuWeather Data
-accuweather_data = [
-    {"city": "Karachi", "date": "2025-04-11T07:00:00+05:00", "min_temp": 25.2, "max_temp": 38.1,
-     "forecast": "Sunny", "source": "AccuWeather"},
-    {"city": "Lahore", "date": "2025-04-11T07:00:00+05:00", "min_temp": 20.3, "max_temp": 34.7,
-     "forecast": "Intermittent clouds", "source": "AccuWeather"},
-    {"city": "Islamabad", "date": "2025-04-11T07:00:00+05:00", "min_temp": 18.0, "max_temp": 33.8,
-     "forecast": "Intermittent clouds", "source": "AccuWeather"},
-]
+# Convert Celsius to Fahrenheit where applicable
+if not weather_df.empty and "current.temp_c" in weather_df.columns:
+    weather_df["current.temp_f"] = (weather_df["current.temp_c"] * 9 / 5) + 32
 
-# Convert to DataFrames
-owm_df = pd.DataFrame(owm_data)
-accu_df = pd.DataFrame(accuweather_data)
+if not historical_df.empty:
+    historical_df["temperature_2m_max_f"] = (historical_df["temperature_2m_max"] * 9 / 5) + 32
 
-# ---------------------------
-# Clean & Transform
-# ---------------------------
+if not google_drive_df.empty:
+    google_drive_df["Temperature_F"] = (google_drive_df["Temperature"] * 9 / 5) + 32
 
-# Format datetime
-accu_df['date'] = pd.to_datetime(accu_df['date'], utc=True)
-accu_df['temperature'] = (accu_df['min_temp'] + accu_df['max_temp']) / 2
-accu_df['humidity'] = None  # No humidity provided
+# Standardize Date Formats
+if not weather_df.empty and "location.localtime" in weather_df.columns:
+    weather_df["date"] = pd.to_datetime(weather_df["location.localtime"]).dt.date
 
-# Rename to align columns
-accu_df = accu_df.rename(columns={"forecast": "weather"})
-accu_df = accu_df[["city", "weather", "temperature", "humidity", "date", "source"]]
+if not historical_df.empty:
+    historical_df["date"] = pd.to_datetime(historical_df["time"]).dt.date
 
-# Add timestamp to OWM
-owm_df["date"] = pd.to_datetime("2025-04-11", utc=True)  # static date from example
+if not noaa_df.empty and "DATE" in noaa_df.columns:
+    noaa_df["date"] = pd.to_datetime(noaa_df["DATE"]).dt.date
 
-# Reorder OWM columns
-owm_df = owm_df[["city", "weather", "temperature", "humidity", "date", "source"]]
+if not google_drive_df.empty:
+    google_drive_df["date"] = pd.to_datetime(google_drive_df["date"], errors="coerce", utc=True).dt.date
 
-# Merge both datasets
-combined_df = pd.concat([owm_df, accu_df], ignore_index=True)
+# Remove Duplicates
+for df in [weather_df, historical_df, noaa_df, google_drive_df, mongo_df]:
+    df.drop_duplicates(inplace=True)
 
-# ---------------------------
-# Aggregate per City
-# ---------------------------
+# Aggregate Data: Ensure One Record Per Date
+def aggregate_daily(df, temp_column, new_column):
+    if not df.empty:
+        return df.groupby("date", as_index=False).agg({temp_column: "mean"}).rename(columns={temp_column: new_column})
+    return pd.DataFrame()
 
-aggregated_df = combined_df.groupby("city").agg({
-    "temperature": "mean",
-    "humidity": lambda x: pd.to_numeric(x, errors='coerce').mean(skipna=True)
-}).reset_index()
+historical_df = aggregate_daily(historical_df, "temperature_2m_max", "temperature_2m_max")
+noaa_df = aggregate_daily(noaa_df, "HourlyDryBulbTemperature", "HourlyDryBulbTemperature")
+google_drive_df = aggregate_daily(google_drive_df, "Temperature", "Temperature")
 
-print("🔹 Combined Weather Dataset:\n")
-print(combined_df)
+# Weather Condition Categorization
+weather_mapping = {
+    "Sunny": "Clear",
+    "Partly cloudy": "Cloudy",
+    "Cloudy": "Cloudy",
+    "Overcast": "Cloudy",
+    "Rain": "Precipitation",
+    "Snow": "Precipitation",
+    "Thunderstorm": "Severe Weather"
+}
 
-print("\n✅ Aggregated Daily Averages per City:\n")
-print(aggregated_df)
+if not weather_df.empty and "current.condition.text" in weather_df.columns:
+    weather_df["current.condition.text"] = weather_df["current.condition.text"].map(weather_mapping)
+
+# Keep Only Relevant Columns
+weather_df = weather_df[["date", "current.temp_c", "current.temp_f", "current.condition.text"]] if not weather_df.empty else pd.DataFrame()
+historical_df = historical_df[["date", "temperature_2m_max"]] if not historical_df.empty else pd.DataFrame()
+noaa_df = noaa_df[["date", "HourlyDryBulbTemperature"]] if not noaa_df.empty else pd.DataFrame()
+google_drive_df = google_drive_df[["date", "Temperature"]] if not google_drive_df.empty else pd.DataFrame()
+
+# Merge DataFrames
+dfs = [weather_df, historical_df, noaa_df, google_drive_df]
+final_df = pd.DataFrame()
+for df in dfs:
+    if not df.empty:
+        final_df = df if final_df.empty else final_df.merge(df, on="date", how="outer")
+
+# Drop Empty Columns
+final_df.dropna(axis=1, how="all", inplace=True)
+
+# Convert Date to String for MongoDB
+final_df["date"] = final_df["date"].astype(str)
+
+# Clean NaN Values
+final_records = [{k: v for k, v in record.items() if pd.notna(v)} for record in final_df.to_dict(orient="records")]
