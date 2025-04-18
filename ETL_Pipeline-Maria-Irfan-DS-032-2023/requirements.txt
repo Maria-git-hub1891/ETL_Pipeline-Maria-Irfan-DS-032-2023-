@@ -1,1 +1,5 @@
-
+pandas
+json
+requests
+MongoClient
+ServerApi
