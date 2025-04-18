@@ -1,3 +1,7 @@
+cd path/to/your/project
+mv ~/Documents/ETL_Pipeline_Report.pdf .
+git init
+git remote add origin https://github.com/your-username/your-repo-name.git
 git add ETL_Pipeline_Report.pdf
-git commit -m "Add final ETL report in PDF format"
+git commit -m "Add final ETL pipeline report in PDF format"
 git push origin main
