@@ -1,63 +1,96 @@
+
 import requests
 import pandas as pd
 
-# Coordinates for cities
-cities = {
-    "Karachi": {"lat": 24.8607, "lon": 67.0011},
-    "Lahore": {"lat": 31.5497, "lon": 74.3436},
-    "Islamabad": {"lat": 33.6844, "lon": 73.0479}
-}
+# Replace with your API keys
+openweather_api_key = "d8f012ca36a01152b4ff5d75ab332cf5"
+accuweather_api_key = "AvQbBEyfuylYGtXNViEXTLoIvAA2L6OS"
+# List of cities
+cities = ["Karachi", "Lahore", "Islamabad"]
 
-# Open-Meteo API endpoint
-open_meteo_url = "https://api.open-meteo.com/v1/forecast"
+# OpenWeatherMap API endpoint for current weather
+openweather_url = f"http://api.openweathermap.org/data/2.5/weather"
 
-# Initialize an empty list to store data
-weather_data_list = []
+# AccuWeather endpoints for location search and 1-day forecast
+accuweather_location_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
+accuweather_forecast_url = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/{locationKey}"
 
-# Function to fetch temperature, humidity, and weather condition from Open-Meteo API
-def get_weather_data(city_name, lat, lon):
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "daily": ["temperature_2m_max", "relative_humidity_2m_max"],
-        "timezone": "Asia/Karachi"  # Set timezone for data consistency
+# DataFrames for each city
+openweather_dataframes = {}
+accuweather_dataframes = {}
+
+# Fetch OpenWeatherMap data and store in DataFrame
+def get_openweather_data(city):
+    openweather_params = {
+        "q": city,
+        "appid": openweather_api_key,
+        "units": "metric"
     }
-    response = requests.get(open_meteo_url, params=params)
+    response = requests.get(openweather_url, params=openweather_params)
     if response.status_code == 200:
         data = response.json()
-        # Extract only the first day's data
-        temperature = data['daily']['temperature_2m_max'][0]
-        humidity = data['daily']['relative_humidity_2m_max'][0]
-
-        # Simple logic for weather condition based on temperature
-        if temperature > 30:
-            weather_condition = "Sunny"
-        elif temperature > 20:
-            weather_condition = "Cloudy"
-        else:
-            weather_condition = "Rainy"
-
-        # Create a new dictionary for the city data
-        new_data = {
-            "City": city_name,
-            "Temperature (°C)": temperature,
-            "Humidity (%)": humidity,
-            "Weather Condition": weather_condition
+        return {
+            "City": city,
+            "Weather": data['weather'][0]['description'].capitalize(),
+            "Temperature (°C)": data['main']['temp'],
+            "Humidity (%)": data['main']['humidity']
         }
-        return new_data
     else:
-        print(f"Error fetching data for {city_name}")
+        print(f"Error fetching OpenWeatherMap data for {city}")
         return None
 
-# Loop through each city and collect the weather data
-for city_name, coords in cities.items():
-    weather_data = get_weather_data(city_name, coords["lat"], coords["lon"])
-    if weather_data:
-        weather_data_list.append(weather_data)
+# Fetch AccuWeather daily forecast data and store in DataFrame
+def get_accuweather_forecast_data(city):
+    location_params = {
+        "apikey": accuweather_api_key,
+        "q": city
+    }
+    location_response = requests.get(accuweather_location_url, params=location_params)
+    if location_response.status_code == 200:
+        location_data = location_response.json()
+        if location_data:
+            location_key = location_data[0]["Key"]
+            forecast_response = requests.get(accuweather_forecast_url.format(locationKey=location_key),
+                                             params={"apikey": accuweather_api_key, "metric": True})
+            if forecast_response.status_code == 200:
+                forecast_data = forecast_response.json()
+                daily_forecast = forecast_data['DailyForecasts'][0]
+                return {
+                    "City": city,
+                    "Date": daily_forecast['Date'],
+                    "Forecast Weather": daily_forecast['Day']['IconPhrase'],
+                    "Temperature Min (°C)": daily_forecast['Temperature']['Minimum']['Value'],
+                    "Temperature Max (°C)": daily_forecast['Temperature']['Maximum']['Value'],
+                }
+            else:
+                print(f"Error fetching AccuWeather forecast data for {city}")
+        else:
+            print(f"City {city} not found in AccuWeather")
+    else:
+        print(f"Error fetching AccuWeather location for {city}")
+    return None
 
-# Convert the list of dictionaries to a DataFrame
-weather_df = pd.DataFrame(weather_data_list)
+# Run for each city and store in DataFrames
+for city in cities:
+    openweather_results = []
+    accuweather_forecast_results = []
 
-# Display the consolidated DataFrame
-print("\nConsolidated Weather Data:")
-print(weather_df)
+    for _ in range(1):  # Loop 3 times for each city
+        openweather_data = get_openweather_data(city)
+        accuweather_forecast_data = get_accuweather_forecast_data(city)
+
+        if openweather_data:
+            openweather_results.append(openweather_data)
+        if accuweather_forecast_data:
+            accuweather_forecast_results.append(accuweather_forecast_data)
+
+    # Create DataFrames for each city
+    openweather_dataframes[city] = pd.DataFrame(openweather_results)
+    accuweather_dataframes[city] = pd.DataFrame(accuweather_forecast_results)
+
+# Display DataFrames for each city
+for city in cities:
+    print(f"\nOpenWeatherMap Data for {city}:")
+    print(openweather_dataframes[city])
+    print(f"\nAccuWeather Daily Forecast Data for {city}:")
+    print(accuweather_dataframes[city])
