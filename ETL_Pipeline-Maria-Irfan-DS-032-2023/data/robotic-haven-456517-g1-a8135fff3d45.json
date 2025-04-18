@@ -1,6 +1,6 @@
 pip install gspread oauth2client
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from oauth2client.service_account import ServiceAccountCredential
 
 # Define the scope of the application
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
