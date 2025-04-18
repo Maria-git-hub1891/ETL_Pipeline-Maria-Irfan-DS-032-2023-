@@ -1,6 +1,6 @@
 {
   "weather_api": {
-    "key": "d95b293a864c4da8aaa182800252903",
+    "key": "d8f012ca36a01152b4ff5d75ab332cf5",
     "location": "New York",
     "url": "http://api.weatherapi.com/v1/current.json"
   },
