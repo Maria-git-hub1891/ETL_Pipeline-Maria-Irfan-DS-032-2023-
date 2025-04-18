@@ -2,13 +2,6 @@ import pandas as pd
 from datetime import datetime
 
 
-# Data
-owm_data = [
-    {"city": "Karachi", "weather": "Haze", "temperature": 27.9, "humidity": 69, "source": "OpenWeather"},
-    {"city": "Lahore", "weather": "Scattered clouds", "temperature": 23.99, "humidity": 60, "source": "OpenWeather"},
-    {"city": "Islamabad", "weather": "Scattered clouds", "temperature": 22.69, "humidity": 53, "source": "OpenWeather"},
-]
-
 # AccuWeather Data
 accuweather_data = [
     {"city": "Karachi", "date": "2025-04-11T07:00:00+05:00", "min_temp": 25.2, "max_temp": 38.1,
