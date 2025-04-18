@@ -1,1 +1,33 @@
+ETL Pipeline Report
+1. Extract
+
+The extraction phase involves reading data from various sources. In this ETL process, data is extracted from a CSV file, namely 'weather_data.csv'. The data contains information about date, temperature, humidity, and location.
+
+2. Transform
+
+The transformation phase involves cleaning and preparing the data. The steps performed include:
+- Removing duplicates
+- Dropping rows with missing values
+- Standardizing column names
+- Converting the date column to datetime format
+- Filling missing values with mean values (if applicable)
+- Adding a new column for temperature in Fahrenheit
+
+3. Load
+
+The final transformed data is saved into a new CSV file named 'cleaned_weather_data.csv'. This file can then be used for further analysis or reporting.
+
+4. CI/CD Automation
+
+To automate the ETL process, a GitHub Actions workflow is set up. The CI/CD workflow is configured to trigger on every push that affects .ipynb or .py files, or manually through the Actions tab.
+
+The workflow performs the following:
+- Checks out the repository
+- Sets up the Python environment
+- Installs required dependencies
+- Executes the Jupyter notebook
+- Uploads the cleaned CSV file as an artifact
+
+This ensures that the ETL pipeline runs automatically and remains consistent.
+
 
