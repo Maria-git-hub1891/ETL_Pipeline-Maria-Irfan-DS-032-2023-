@@ -1,78 +1,50 @@
+import pandas as pd
 
-# Handle Missing Data
-for df in [weather_df, historical_df, noaa_df, google_drive_df, mongo_df]:
-    df.fillna(method="ffill", inplace=True)
-    df.fillna(method="bfill", inplace=True)
+# Sample: assume data is already loaded in a DataFrame called `df`
+# df = pd.read_csv("data.csv")
 
-# Convert Celsius to Fahrenheit where applicable
-if not weather_df.empty and "current.temp_c" in weather_df.columns:
-    weather_df["current.temp_f"] = (weather_df["current.temp_c"] * 9 / 5) + 32
+# --- CLEANING ---
 
-if not historical_df.empty:
-    historical_df["temperature_2m_max_f"] = (historical_df["temperature_2m_max"] * 9 / 5) + 32
+# 1. Drop duplicates
+df.drop_duplicates(inplace=True)
 
-if not google_drive_df.empty:
-    google_drive_df["Temperature_F"] = (google_drive_df["Temperature"] * 9 / 5) + 32
+# 2. Drop empty rows (or specific threshold of NaNs)
+df.dropna(how='all', inplace=True)
 
-# Standardize Date Formats
-if not weather_df.empty and "location.localtime" in weather_df.columns:
-    weather_df["date"] = pd.to_datetime(weather_df["location.localtime"]).dt.date
+# 3. Standardize column names
+df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
 
-if not historical_df.empty:
-    historical_df["date"] = pd.to_datetime(historical_df["time"]).dt.date
+# 4. Convert date columns
+if 'date' in df.columns:
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-if not noaa_df.empty and "DATE" in noaa_df.columns:
-    noaa_df["date"] = pd.to_datetime(noaa_df["DATE"]).dt.date
+# 5. Fill missing values
+df.fillna({
+    'column1': 0,              # numeric column
+    'column2': 'Unknown',      # string column
+}, inplace=True)
 
-if not google_drive_df.empty:
-    google_drive_df["date"] = pd.to_datetime(google_drive_df["date"], errors="coerce", utc=True).dt.date
+# 6. Type conversions
+df['some_column'] = df['some_column'].astype(str)
 
-# Remove Duplicates
-for df in [weather_df, historical_df, noaa_df, google_drive_df, mongo_df]:
-    df.drop_duplicates(inplace=True)
+# 7. Remove outliers (optional)
+# Example: remove rows where value is above 99th percentile
+# df = df[df['value_column'] < df['value_column'].quantile(0.99)]
+# --- TRANSFORMATION ---
 
-# Aggregate Data: Ensure One Record Per Date
-def aggregate_daily(df, temp_column, new_column):
-    if not df.empty:
-        return df.groupby("date", as_index=False).agg({temp_column: "mean"}).rename(columns={temp_column: new_column})
-    return pd.DataFrame()
+# 1. Create new columns
+df['year'] = df['date'].dt.year if 'date' in df.columns else None
 
-historical_df = aggregate_daily(historical_df, "temperature_2m_max", "temperature_2m_max")
-noaa_df = aggregate_daily(noaa_df, "HourlyDryBulbTemperature", "HourlyDryBulbTemperature")
-google_drive_df = aggregate_daily(google_drive_df, "Temperature", "Temperature")
+# 2. Aggregation example
+summary = df.groupby('category_column')['amount_column'].sum().reset_index()
 
-# Weather Condition Categorization
-weather_mapping = {
-    "Sunny": "Clear",
-    "Partly cloudy": "Cloudy",
-    "Cloudy": "Cloudy",
-    "Overcast": "Cloudy",
-    "Rain": "Precipitation",
-    "Snow": "Precipitation",
-    "Thunderstorm": "Severe Weather"
-}
+# 3. Feature Engineering
+df['revenue_per_unit'] = df['total_revenue'] / df['units_sold']
 
-if not weather_df.empty and "current.condition.text" in weather_df.columns:
-    weather_df["current.condition.text"] = weather_df["current.condition.text"].map(weather_mapping)
+# 4. Encoding categories (for ML or analytics)
+df['encoded_category'] = df['category_column'].astype('category').cat.codes
+# Preview cleaned and transformed data
+print(df.head())
 
-# Keep Only Relevant Columns
-weather_df = weather_df[["date", "current.temp_c", "current.temp_f", "current.condition.text"]] if not weather_df.empty else pd.DataFrame()
-historical_df = historical_df[["date", "temperature_2m_max"]] if not historical_df.empty else pd.DataFrame()
-noaa_df = noaa_df[["date", "HourlyDryBulbTemperature"]] if not noaa_df.empty else pd.DataFrame()
-google_drive_df = google_drive_df[["date", "Temperature"]] if not google_drive_df.empty else pd.DataFrame()
-
-# Merge DataFrames
-dfs = [weather_df, historical_df, noaa_df, google_drive_df]
-final_df = pd.DataFrame()
-for df in dfs:
-    if not df.empty:
-        final_df = df if final_df.empty else final_df.merge(df, on="date", how="outer")
-
-# Drop Empty Columns
-final_df.dropna(axis=1, how="all", inplace=True)
-
-# Convert Date to String for MongoDB
-final_df["date"] = final_df["date"].astype(str)
-
-# Clean NaN Values
-final_records = [{k: v for k, v in record.items() if pd.notna(v)} for record in final_df.to_dict(orient="records")]
+# Optionally save it for loading in next steps
+df.to_csv("cleaned_transformed_data.csv", index=False)
