@@ -1,1 +1,61 @@
+import pandas as pd
+from datetime import datetime
 
+
+# OpenWeatherMap Data
+owm_data = [
+    {"city": "Karachi", "weather": "Haze", "temperature": 27.9, "humidity": 69, "source": "OpenWeather"},
+    {"city": "Lahore", "weather": "Scattered clouds", "temperature": 23.99, "humidity": 60, "source": "OpenWeather"},
+    {"city": "Islamabad", "weather": "Scattered clouds", "temperature": 22.69, "humidity": 53, "source": "OpenWeather"},
+]
+
+# AccuWeather Data
+accuweather_data = [
+    {"city": "Karachi", "date": "2025-04-11T07:00:00+05:00", "min_temp": 25.2, "max_temp": 38.1,
+     "forecast": "Sunny", "source": "AccuWeather"},
+    {"city": "Lahore", "date": "2025-04-11T07:00:00+05:00", "min_temp": 20.3, "max_temp": 34.7,
+     "forecast": "Intermittent clouds", "source": "AccuWeather"},
+    {"city": "Islamabad", "date": "2025-04-11T07:00:00+05:00", "min_temp": 18.0, "max_temp": 33.8,
+     "forecast": "Intermittent clouds", "source": "AccuWeather"},
+]
+
+# Convert to DataFrames
+owm_df = pd.DataFrame(owm_data)
+accu_df = pd.DataFrame(accuweather_data)
+
+# ---------------------------
+# Clean & Transform
+# ---------------------------
+
+# Format datetime
+accu_df['date'] = pd.to_datetime(accu_df['date'], utc=True)
+accu_df['temperature'] = (accu_df['min_temp'] + accu_df['max_temp']) / 2
+accu_df['humidity'] = None  # No humidity provided
+
+# Rename to align columns
+accu_df = accu_df.rename(columns={"forecast": "weather"})
+accu_df = accu_df[["city", "weather", "temperature", "humidity", "date", "source"]]
+
+# Add timestamp to OWM
+owm_df["date"] = pd.to_datetime("2025-04-11", utc=True)  # static date from example
+
+# Reorder OWM columns
+owm_df = owm_df[["city", "weather", "temperature", "humidity", "date", "source"]]
+
+# Merge both datasets
+combined_df = pd.concat([owm_df, accu_df], ignore_index=True)
+
+# ---------------------------
+# Aggregate per City
+# ---------------------------
+
+aggregated_df = combined_df.groupby("city").agg({
+    "temperature": "mean",
+    "humidity": lambda x: pd.to_numeric(x, errors='coerce').mean(skipna=True)
+}).reset_index()
+
+print("🔹 Combined Weather Dataset:\n")
+print(combined_df)
+
+print("\n✅ Aggregated Daily Averages per City:\n")
+print(aggregated_df)
