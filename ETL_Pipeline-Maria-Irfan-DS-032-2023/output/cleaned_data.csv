@@ -2,7 +2,7 @@ import requests
 import json
 
 # Replace with your actual OpenWeatherMap API key
-API_KEY = "26c65e9a3738237235a77dafd7a50b7c"
+API_KEY = "---------------"
 cities = ['Karachi', 'Lahore', 'Islamabad', 'Quetta', 'Peshawar']
 
 weather_data = {}
