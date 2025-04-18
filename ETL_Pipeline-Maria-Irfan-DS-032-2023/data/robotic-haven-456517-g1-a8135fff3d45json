@@ -12,7 +12,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('robotic-haven-456517-g
 client = gspread.authorize(creds)
 
 # Open the sheet using the URL
-sheet = client.open_by_url('#https://docs.google.com/spreadsheets/d/197X9ztxNshyKPfwaDCweGrE7jomPKg5Pdi_HspbtrqI/edit?usp=sharing').sheet1
+sheet = client.open_by_url('https://docs.google.com/spreadsheets/d/197X9ztxNshyKPfwaDCweGrE7jomPKg5Pdi_HspbtrqI/edit?usp=sharing').sheet1
 
 # Get all data from the sheet as a list of dictionaries
 data_drive = sheet.get_all_records()
