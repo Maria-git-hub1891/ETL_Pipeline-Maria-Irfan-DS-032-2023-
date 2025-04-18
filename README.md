@@ -34,19 +34,21 @@ git clone https://github.com/your-username/ETL_Pipeline_MariaIrfan_DS-032.git
 cd ETL_Pipeline_MariaIrfan_DS-032
 
 2. Install dependencies:
-
+```bash
 pip install -r requirements.txt
 
 python -m venv venv
 source venv/bin/activate
 
 3. Automation
+```bash
 Use scheduler.py to automate the ETL pipeline daily using:
 
 schedule Python module (in-script scheduler)
 
 
 4. CI/CD Integration
+```bash
 The .github/workflows/ci_cd.yml enables GitHub Actions for:
 
 Code linting
@@ -56,9 +58,11 @@ Notebook execution tests
 Future deployment hooks
 
 5. Run the ETL Pipeline
+```bash
 python weather_etl.py
 
 6. Run the Scheduler
+```bash
 python scheduler.py
 
 🔄 Automation
