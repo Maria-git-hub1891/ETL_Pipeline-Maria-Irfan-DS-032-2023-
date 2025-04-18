@@ -1,1 +1,5 @@
+# 2. JSON File
+json_weather = pd.read_json("json_weather.json", lines=True)
 
+# Display the data
+print(json_weather)
