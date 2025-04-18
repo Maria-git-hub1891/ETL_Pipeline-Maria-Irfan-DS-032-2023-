@@ -1,9 +1,63 @@
-import pandas as pd
-import json
 import requests
-from datetime import datetime
+import pandas as pd
 
-# 2. JSON File
-json_weather = pd.read_json(&quot;json_weather.json&quot;, lines=True)
-# Display the data
-print(json_weather)
+# Coordinates for cities
+cities = {
+    "Karachi": {"lat": 24.8607, "lon": 67.0011},
+    "Lahore": {"lat": 31.5497, "lon": 74.3436},
+    "Islamabad": {"lat": 33.6844, "lon": 73.0479}
+}
+
+# Open-Meteo API endpoint
+open_meteo_url = "https://api.open-meteo.com/v1/forecast"
+
+# Initialize an empty list to store data
+weather_data_list = []
+
+# Function to fetch temperature, humidity, and weather condition from Open-Meteo API
+def get_weather_data(city_name, lat, lon):
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "daily": ["temperature_2m_max", "relative_humidity_2m_max"],
+        "timezone": "Asia/Karachi"  # Set timezone for data consistency
+    }
+    response = requests.get(open_meteo_url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        # Extract only the first day's data
+        temperature = data['daily']['temperature_2m_max'][0]
+        humidity = data['daily']['relative_humidity_2m_max'][0]
+
+        # Simple logic for weather condition based on temperature
+        if temperature > 30:
+            weather_condition = "Sunny"
+        elif temperature > 20:
+            weather_condition = "Cloudy"
+        else:
+            weather_condition = "Rainy"
+
+        # Create a new dictionary for the city data
+        new_data = {
+            "City": city_name,
+            "Temperature (°C)": temperature,
+            "Humidity (%)": humidity,
+            "Weather Condition": weather_condition
+        }
+        return new_data
+    else:
+        print(f"Error fetching data for {city_name}")
+        return None
+
+# Loop through each city and collect the weather data
+for city_name, coords in cities.items():
+    weather_data = get_weather_data(city_name, coords["lat"], coords["lon"])
+    if weather_data:
+        weather_data_list.append(weather_data)
+
+# Convert the list of dictionaries to a DataFrame
+weather_df = pd.DataFrame(weather_data_list)
+
+# Display the consolidated DataFrame
+print("\nConsolidated Weather Data:")
+print(weather_df)
