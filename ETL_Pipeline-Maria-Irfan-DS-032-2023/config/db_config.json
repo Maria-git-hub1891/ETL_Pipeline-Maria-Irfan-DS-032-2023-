@@ -7,3 +7,4 @@ from datetime import datetime
 json_weather = pd.read_json(&quot;json_weather.json&quot;, lines=True)
 # Display the data
 print(json_weather)
+json_weather = pd.read_json("json_weather.json", lines=True)
