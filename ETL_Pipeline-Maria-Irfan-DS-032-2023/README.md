@@ -10,9 +10,10 @@ This project implements a complete **ETL (Extract, Transform, Load)** pipeline u
 
 ├── weather_etl.py      
 
-├── scheduler.py    
-
 ├── db_config.json         
+
+
+├──  scheduler.py          
 
 ├── requirements.txt       
 
